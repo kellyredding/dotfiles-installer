@@ -1,0 +1,6 @@
+pkg/*
+.bundle
+*.gem
+*.log
+.rvmrc
+.rbenv-version

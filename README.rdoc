@@ -1,0 +1,112 @@
+= DotfilesInstaller
+
+== Description
+
+This gem installs safely installs dotfiles into your $HOME
+
+== Installation
+
+    gem install dotfiles-installer
+
+== Usage
+
+I prefer to use this in a Rakefile.  I build an :install rake task and put the installer in there.  Check out my dotfiles repo for an example: .
+
+You can run the installer from any Ruby script:
+
+    require 'dotfiles_installer'
+
+First, create an installer, passing it the source directory where your dotfiles are stored:
+
+    installer = DotfilesInstaller::Interactive.new("~/.dotfiles")
+
+You can optionally pass an argument for the home dir to install to (defaults to $HOME).
+
+Finally, just tell the installer to install its dotfiles:
+
+    installer.install
+
+== How it Installs
+The installer attempts to safely install dotfiles.  What I mean is that, in addition to symlinking any root files, it will create dot-directories for any nested dotfiles instead of just symlinking the root directory.  This means you can install multiple sets of dotfiles from different source.  As long as they don't have the same relative paths, you're good.  It's really easier to just show how this works:
+
+So, given a source of dotfiles, say at ~/.dotfiles:
+
+    bash
+    | aliases
+    | colors
+    bin
+    | a_script
+    gemrc
+    gitconfig.erb
+    gitignore
+    irbrc
+
+Installs into the $HOME as:
+
+    .bash
+    | aliases         -> /Users/xxx/.dotfiles/bash/aliases
+    | colors          -> /Users/xxx/.dotfiles/bash/colors
+    .bin
+    | a_script        -> /Users/xxx/.dotfiles/bin/a_script
+    .gemrc            -> /Users/xxx/.dotfiles/gemrc
+    .gitconfig        -> /Users/xxx/.dotfiles/~gitconfig
+    .gitignore        -> /Users/xxx/.dotfiles/gitignore
+    .irbrc            -> /Users/xxx/.dotfiles/irbrc
+
+== Other Stuff
+
+=== It uninstalls
+The installer can clean itself up.  If you want to remove a source's dotfiles, spin up an installer and tell it to uninstall:
+
+    DotfilesInstaller::Interactive.new("~/.dotfiles").uninstall
+
+Not only will it remove all dotfile symlinks, it will remove any directories it made for the symlinks (assuming they are empty).
+
+=== It's Interactive
+I've named the installer class DotfilesInstaller::Interactive for a reason.  The installer keeps you in the loop on what its doing.  If it detects conflicts on install, it will ask what you want to do.  It will prompt before removing anything on uninstall.
+
+=== ERB evaluation
+You'll notice in the above example, the gitconfig source dotfile is an erb file.  Any source files with a '.erb' extension are rendered using ERB.  The rendered source file is cached alongside the original source with the '~' prefix.  This cached file is linked to the home.
+
+If you store your dotfiles in git, you can add a gitignore for these cached files to keep them out of your repo.
+
+=== Auto Ignored source files
+Any source file whos name begins with a '~' is ignored by the installer.
+
+=== Manually ignoring source files
+If you want some files in the source to be ignored but don't want to rename it with a '~' (say a README or something), pass in an :ignored_filenames option:
+
+    installer = DotfilesInstaller::Interactive.new("~/.dotfiles"), {
+      :ignored_filenames => %w[README Gemfile Rakefile]
+    })
+
+You can specify :ignored_filenames using strings or regular expressions.  Any file whos name matches one of these will be ignored by the installer.
+
+== I wrote this for me
+
+I also use this to install private dotfiles as part of my machine build script.  I also use this in some rake tasks on my dotfiles repo ().  Check it out the rake tasks and the repo setup for a usage example.
+
+== License
+
+Copyright (c) 2011 Kelly Redding
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
