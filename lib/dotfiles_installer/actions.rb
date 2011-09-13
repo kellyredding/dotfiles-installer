@@ -1,17 +1,21 @@
 module DotfilesInstaller::Actions
 
   def replace(home_path, source_path)
-    [ remove(home_path),
-      link(source_path, home_path)
-    ].flatten
+    self.remove(home_path)
+    self.create(source_path, home_path)
   end
 
   def remove(home_path)
-    [%Q{rm -rf "#{self.ep(home_path)}"}]
+    self.commands += [ %Q{rm -rf "#{self.ep(home_path)}"} ]
   end
 
   def create(source_path, home_path)
-    link(source_path =~ /.erb$/ ? generate(source_path) : source_path, home_path)
+    self.makedir(home_path)
+    self.link(source_path =~ /.erb$/ ? generate(source_path) : source_path, home_path)
+  end
+
+  def makedir(home_path)
+    self.commands += [ %Q{mkdir -p "#{self.ep(File.dirname(home_path))}"} ]
   end
 
   def generate(source_path)
@@ -25,19 +29,11 @@ module DotfilesInstaller::Actions
   end
 
   def link(source_path, home_path)
-    [ self.makedir(home_path),
-      %Q{ln -s "#{self.ep(source_path)}" "#{self.ep(home_path)}"}
-    ].flatten
+    self.commands += [ %Q{ln -s "#{self.ep(source_path)}" "#{self.ep(home_path)}"} ]
   end
 
-  def makedir(home_path)
-    [%Q{mkdir -p "#{self.ep(File.dirname(home_path))}"}]
-  end
-
-  protected
-
-  def ep(path)
-    File.expand_path(path)
+  def echo(msg)
+    self.commands += [ %Q{echo #{msg}} ]
   end
 
 end
