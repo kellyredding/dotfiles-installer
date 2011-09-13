@@ -24,11 +24,15 @@ module DotfilesInstaller::Utilities
   end
 
   def ignored_file?(path)
-    self.options[:ignored_filenames].include? File.basename(path)
+    path_bn = File.basename(path)
+    (self.options[:ignored_filenames] || []).include?(path_bn) || path_bn =~ /^~/
   end
 
   def execute(command_list)
-    #command_list.commands
+    command_list.commands.flatten.each do |cmd|
+      yield cmd if block_given?
+      system(cmd)
+    end
   end
 
 end

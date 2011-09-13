@@ -24,11 +24,17 @@ class TestInstaller < ::DotfilesInstaller::Base
 
   # force the install or uninstall on all files
   def install
-    self.execute(InstallCommands.new(self.source_map) { |p, i| 'a' })
+    commands = ::DotfilesInstaller::InstallCommands.new(self.source_map) { |p, i| 'a' }
+    self.execute(commands) do |cmd|
+      puts " => #{cmd}"
+    end
   end
 
   def uninstall
-    self.execute(UninstallCommands.new(self.source_map) { |p, i| 'a' })
+    commands = ::DotfilesInstaller::UninstallCommands.new(self.source_map) { |p, i| 'a' }
+    self.execute(commands) do |cmd|
+      puts " => #{cmd}"
+    end
   end
 end
 
