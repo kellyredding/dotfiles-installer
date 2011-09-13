@@ -1,7 +1,7 @@
 require 'ansi'
 require 'erb'
 
-# require 'dotfiles_installer/actions'
+require 'dotfiles_installer/actions'
 require 'dotfiles_installer/utilities'
 
 # The dotfiles installer parses a sourcedir and links files to a homedir:
@@ -36,7 +36,7 @@ require 'dotfiles_installer/utilities'
 module DotfilesInstaller
 
   class Base
-    # extend Actions
+    extend Actions
     include Utilities
 
     attr_reader :sourcedir, :homedir, :options
