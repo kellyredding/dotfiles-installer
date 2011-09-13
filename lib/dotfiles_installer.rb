@@ -3,6 +3,7 @@ require 'erb'
 
 require 'dotfiles_installer/actions'
 require 'dotfiles_installer/utilities'
+require 'dotfiles_installer/command_list'
 
 # The dotfiles installer parses a sourcedir and links files to a homedir:
 # - The installer provides install and uninstall commands that guide and update
@@ -36,7 +37,6 @@ require 'dotfiles_installer/utilities'
 module DotfilesInstaller
 
   class Base
-    extend Actions
     include Utilities
 
     attr_reader :sourcedir, :homedir, :options
@@ -45,6 +45,25 @@ module DotfilesInstaller
       @sourcedir = sourcedir
       @options = args.last.kind_of?(::Hash) ? args.pop : {}
       @homedir = args.pop || ENV["HOME"]
+    end
+
+  end
+
+  # run the install or uninstall printing to $stdout and reading from $stdin
+  class Interactive < Base
+
+    def install
+      self.execute(InstallCommands.new(self.source_map) do |prompt, inputs|
+        print "#{prompt} #{inputs} "
+        $stdin.gets.chomp
+      end)
+    end
+
+    def uninstall
+      self.execute(UninstallCommands.new(self.source_map) do |prompt, inputs|
+        print "#{prompt} #{inputs} "
+        $stdin.gets.chomp
+      end)
     end
 
   end

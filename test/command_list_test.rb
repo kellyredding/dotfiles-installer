@@ -19,12 +19,4 @@ module DotfilesInstaller
   end
 
 
-  class InstallCommandsTests < Assert::Context
-  end
-
-
-  class UninstallCommandsTests < Assert::Context
-  end
-
-
 end

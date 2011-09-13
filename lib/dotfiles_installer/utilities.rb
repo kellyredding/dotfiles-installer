@@ -1,10 +1,17 @@
 module DotfilesInstaller::Utilities
 
+  # nested source paths for not-ignored files
   def source_paths
     Dir["#{File.expand_path(self.sourcedir)}/**/*"].
     select { |path| File.file?(path) }.
-    reject { |path| ignored_file?(path) }.each do |path|
-      yield path, home_path(path) if block_given?
+    reject { |path| ignored_file?(path) }
+  end
+
+  # create a hash of soure_path keys with home_path values
+  def source_map
+    self.source_paths.inject({}) do |map, path|
+      map[path] = self.home_path(path)
+      map
     end
   end
 
@@ -20,10 +27,8 @@ module DotfilesInstaller::Utilities
     self.options[:ignored_filenames].include? File.basename(path)
   end
 
-  # def empty_dir?(path)
-  #   if File.exists?(d = File.dirname(path))
-  #     Dir.entries(d).reject{|e| ['.', '..'].include?(e)}.empty?
-  #   end
-  # end
+  def execute(command_list)
+    #command_list.commands
+  end
 
 end

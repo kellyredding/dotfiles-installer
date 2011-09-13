@@ -2,12 +2,12 @@ require 'assert'
 
 module DotfilesInstaller
 
-  class BaseTests < Assert::Context
-    desc "the base installer"
+  class InstallerTests < Assert::Context
+    desc "a basic installer"
     subject { @installer }
 
     should have_readers :sourcedir, :homedir, :options
-    should have_instance_methods :source_paths
+    should have_instance_methods :source_paths, :install, :uninstall
 
     should "know its source files and ignore any :ignored_filenames" do
       source_paths = subject.source_paths

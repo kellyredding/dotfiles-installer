@@ -13,6 +13,25 @@ TESTDIRS_ROOT     = "testdirs"
 TESTDIRS_SOURCE   = "#{TESTDIRS_ROOT}/sourcedir"
 TESTDIRS_HOME     = "#{TESTDIRS_ROOT}/homedir"
 
+class TestActionsCommands < ::DotfilesInstaller::CommandList; end
+
+class TestInstaller < ::DotfilesInstaller::Base
+  def initialize
+    super(TESTDIRS_SOURCE, TESTDIRS_HOME, {
+      :ignored_filenames => %w[ignored_file]
+    })
+  end
+
+  # force the install or uninstall on all files
+  def install
+    self.execute(InstallCommands.new(self.source_map) { |p, i| 'a' })
+  end
+
+  def uninstall
+    self.execute(UninstallCommands.new(self.source_map) { |p, i| 'a' })
+  end
+end
+
 class Assert::Context
   startup do
     FileUtils.mkdir_p(TESTDIRS_SOURCE)
@@ -24,9 +43,7 @@ class Assert::Context
   end
 
   before do
-    @installer = DotfilesInstaller::Base.new(TESTDIRS_SOURCE, TESTDIRS_HOME, {
-      :ignored_filenames => %w[ignored_file]
-    })
+    @installer = TestInstaller.new
   end
 
 end
