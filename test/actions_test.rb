@@ -10,15 +10,6 @@ module DotfilesInstaller
     should have_instance_methods :replace, :remove, :create
     should have_instance_methods :makedir, :generate, :link, :echo
 
-    # TODO: move to base test
-    # should have_reader :source_map
-    # should have_accessor :commands
-    # should have_instance_methods :ep
-
-    # should "expand paths" do
-    #   assert_equal File.expand_path("./test"), subject.ep("./test")
-    # end
-
     should "echo info" do
       subject.echo(%Q{hello "~bob"})
 
