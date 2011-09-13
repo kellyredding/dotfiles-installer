@@ -35,7 +35,10 @@ module DotfilesInstaller
       super
 
       self.source_map.each do |source_path, home_path|
-        self.create(source_path, home_path); next if !File.exist? self.ep(home_path)
+        if !File.exist? self.ep(home_path)
+          self.create(source_path, home_path)
+          next
+        end
 
         if File.identical? self.ep(source_path), self.ep(home_path)
           self.echo "identical #{home_path}"
@@ -71,7 +74,9 @@ module DotfilesInstaller
       super
 
       self.source_map.each do |source_path, home_path|
-        next if !File.exist? self.ep(home_path)
+        if !File.exist? self.ep(home_path)
+          next
+        end
 
         if self.remove_all
           self.remove(home_path)

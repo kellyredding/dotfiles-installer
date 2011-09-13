@@ -35,20 +35,37 @@ module DotfilesInstaller
 
   class InstallTests < InstallerTests
     desc "running an install"
-    before { @installer.install }
+    before do
+      FileUtils.rm_rf(TESTDIRS_HOME)
+
+      @exp_linked_files = @source_files.collect do |f|
+        File.join(TESTDIRS_HOME, ".#{f}").gsub(/.erb/, '')
+      end
+      @installer.install
+    end
 
     should "link up the sourcedir files to the homedir" do
-      @source_files.collect{|f| File.join(TESTDIRS_HOME, ".#{f}").gsub(/.erb/, '')}.each do |home_path|
+      @exp_linked_files.each do |home_path|
         assert File.symlink?(home_path), "#{home_path} is not a symlink"
       end
     end
 
   end
 
-  class UninstallTests < InstallerTests
-    desc "running an uninstall"
+  class UninstallTests < InstallTests
+    desc "then running an uninstall"
+    before { @installer.uninstall }
 
     should "rm all homedir links and any empty homedir dirs" do
+      @exp_linked_files.each do |home_path|
+        assert !File.exists?(home_path), "#{home_path} exists"
+      end
+
+      home_bash = File.join(TESTDIRS_HOME, ".bash")
+      home_bin = File.join(TESTDIRS_HOME, ".bin")
+
+      assert !File.exists?(home_bash), "#{home_bash} exists"
+      assert !File.exists?(home_bin), "#{home_bin} exists"
     end
 
   end

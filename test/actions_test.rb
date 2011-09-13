@@ -32,9 +32,13 @@ module DotfilesInstaller
     end
 
     should "remove home paths" do
+      exp_cmds = [
+        %Q{rm -rf "#{File.expand_path("home_path")}"},
+        %Q{rmdir -p "#{File.dirname(File.expand_path("home_path"))}" 2> /dev/null}
+      ]
       subject.remove("home_path")
 
-      assert_equal [%Q{rm -rf "#{File.expand_path("home_path")}"}], subject.commands
+      assert_equal exp_cmds, subject.commands
     end
 
     should "replace home paths" do

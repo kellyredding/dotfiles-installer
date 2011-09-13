@@ -15,12 +15,7 @@ module DotfilesInstaller::Actions
   end
 
   def remove_dir_if_empty(home_path)
-    dir_path = File.dirname(self.ep(home_path))
-    dir_exists = File.exists?(dir_path)
-    dir_entries = dir_exists ? Dir.entries(dir_path) : []
-    dir_empty = dir_entries.reject{ |e| ['.', '..'].include?(e) }.empty?
-
-    self.commands += dir_empty ? [ %Q{rmdir "#{dir_path}"} ] : []
+    self.commands += [ %Q{rmdir -p "#{File.dirname(self.ep(home_path))}" 2> /dev/null} ]
   end
 
   def create(source_path, home_path)
