@@ -4,52 +4,42 @@ module DotfilesInstaller
 
   class CommandActionsTests < Assert::Context
     desc "the command_list actions"
-    before { @cmd_list = TestActionsCommands.new({}) }
-    subject { @cmd_list }
+    before { @runner = ::TestRunner.new }
+    subject { @runner }
 
     should have_instance_methods :replace, :remove, :create
-    should have_instance_methods :makedir, :generate, :link, :echo
-
-    should "echo info" do
-      subject.echo(%Q{hello "~bob"})
-
-      assert_equal [ %Q{echo hello "~bob"} ], subject.commands
-    end
+    should have_instance_methods :makedir, :generate, :link
 
     should "link source paths" do
       exp_cmds = [
         %Q{ln -s "#{File.expand_path("source_path")}" "#{File.expand_path("home_dir/path")}"}
       ]
-      subject.link("source_path", "home_dir/path")
 
-      assert_equal exp_cmds, subject.commands
+      assert_equal exp_cmds, subject.link("source_path", "home_dir/path")
     end
 
     should "make home dirs" do
-      subject.makedir("home_dir/path")
-
-      assert_equal [%Q{mkdir -p "#{File.expand_path("home_dir")}"}], subject.commands
+      exp_cmds = [ %Q{mkdir -p "#{File.expand_path("home_dir")}"} ]
+      assert_equal exp_cmds, subject.makedir("home_dir/path")
     end
 
     should "remove home paths" do
       exp_cmds = [
-        %Q{rm -rf "#{File.expand_path("home_path")}"},
+        %Q{rm -f "#{File.expand_path("home_path")}"},
         %Q{rmdir -p "#{File.dirname(File.expand_path("home_path"))}" 2> /dev/null}
       ]
-      subject.remove("home_path")
 
-      assert_equal exp_cmds, subject.commands
+      assert_equal exp_cmds, subject.remove("home_path")
     end
 
     should "replace home paths" do
       exp_cmds = [
-        %Q{rm -rf "#{File.expand_path("home_dir/path")}"},
+        %Q{rm -f "#{File.expand_path("home_dir/path")}"},
         %Q{mkdir -p "#{File.expand_path("home_dir")}"},
         %Q{ln -s "#{File.expand_path("source_path")}" "#{File.expand_path("home_dir/path")}"}
       ]
-      subject.replace("home_dir/path", "source_path")
 
-      assert_equal exp_cmds, subject.commands
+      assert_equal exp_cmds, subject.replace("home_dir/path", "source_path")
     end
 
   end
@@ -82,9 +72,8 @@ module DotfilesInstaller
         %Q{mkdir -p "#{File.expand_path(File.dirname(@erb_home_path))}"},
         %Q{ln -s "#{File.expand_path(@gen_erb_source_path)}" "#{File.expand_path(@erb_home_path)}"}
       ]
-      subject.create(@erb_source_path, @erb_home_path)
 
-      assert_equal exp_cmds, subject.commands
+      assert_equal exp_cmds, subject.create(@erb_source_path, @erb_home_path)
       assert File.exists?(@gen_erb_source_path)
     end
 
@@ -93,9 +82,8 @@ module DotfilesInstaller
         %Q{mkdir -p "#{File.expand_path(File.dirname(@reg_home_path))}"},
         %Q{ln -s "#{File.expand_path(@reg_source_path)}" "#{File.expand_path(@reg_home_path)}"}
       ]
-      subject.create(@reg_source_path, @reg_home_path)
 
-      assert_equal exp_cmds, subject.commands
+      assert_equal exp_cmds, subject.create(@reg_source_path, @reg_home_path)
     end
 
   end

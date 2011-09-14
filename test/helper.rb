@@ -13,7 +13,11 @@ TESTDIRS_ROOT     = "testdirs"
 TESTDIRS_SOURCE   = "#{TESTDIRS_ROOT}/sourcedir"
 TESTDIRS_HOME     = "#{TESTDIRS_ROOT}/homedir"
 
-class TestActionsCommands < ::DotfilesInstaller::CommandList; end
+class TestRunner < ::DotfilesInstaller::Runner
+  def initialize
+    super(nil, {:debug => true})
+  end
+end
 
 class TestInstaller < ::DotfilesInstaller::Base
   def initialize
@@ -24,17 +28,11 @@ class TestInstaller < ::DotfilesInstaller::Base
 
   # force the install or uninstall on all files
   def install
-    commands = ::DotfilesInstaller::InstallCommands.new(self.source_map) { |p, i| 'a' }
-    self.execute(commands) do |cmd|
-      puts " => #{cmd}"
-    end
+    TestRunner.new.install(self.source_map) { |p, i| 'a' }
   end
 
   def uninstall
-    commands = ::DotfilesInstaller::UninstallCommands.new(self.source_map) { |p, i| 'a' }
-    self.execute(commands) do |cmd|
-      puts " => #{cmd}"
-    end
+    TestRunner.new.uninstall(self.source_map) { |p, i| 'a' }
   end
 end
 

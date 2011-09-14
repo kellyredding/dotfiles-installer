@@ -1,9 +1,11 @@
 require 'ansi'
 require 'erb'
 
+module DotfilesInstaller; end
+
 require 'dotfiles_installer/actions'
 require 'dotfiles_installer/utilities'
-require 'dotfiles_installer/command_list'
+require 'dotfiles_installer/runner'
 
 # The dotfiles installer parses a sourcedir and links files to a homedir:
 # - The installer provides install and uninstall commands that guide and update
@@ -53,17 +55,17 @@ module DotfilesInstaller
   class Interactive < Base
 
     def install
-      self.execute(InstallCommands.new(self.source_map) do |prompt, inputs|
-        print "#{prompt} #{inputs} "
+      Runner.new($stdout).install(self.source_map) do |prompt, inputs|
+        $stdout.print "#{prompt} #{inputs} "
         $stdin.gets.chomp
-      end)
+      end
     end
 
     def uninstall
-      self.execute(UninstallCommands.new(self.source_map) do |prompt, inputs|
-        print "#{prompt} #{inputs} "
+      Runner.new($stdout).uninstall(self.source_map) do |prompt, inputs|
+        $stdout.print "#{prompt} #{inputs} "
         $stdin.gets.chomp
-      end)
+      end
     end
 
   end
